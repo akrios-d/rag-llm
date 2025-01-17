@@ -20,7 +20,7 @@ def ask_question():
         return jsonify({"error": "Question is required"}), 400
 
     chat_history = chat_manager.load_chat_history()
-    documents = load_documents(data_directory=DATA_DIR)
+    documents = load_documents()
 
     llm = ChatOllama(model=LLM_MODEL)
     memory = ConversationBufferMemory(input_key="question", memory_key="history")
@@ -48,6 +48,6 @@ def ask_question():
 def health_check():
     """Health check endpoint."""
     return jsonify({"status": "ok"}), 200
-    
+
 if __name__ == "__main__":
     app.run(debug=True)
