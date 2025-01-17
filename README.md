@@ -51,7 +51,7 @@ Both systems support fetching documents from local files, Confluence pages, and 
 | `POSTGRES_CONNECTION_STRING` | PostgreSQL connection string                    | `postgresql://user:password@localhost:5432/mydatabase` |
 | `CHROMA_COLLECTION_NAME`    | Collection name for Chroma                       | `my-collection`                        |
 | `EMBEDDING_MODEL_NAME`      | Model name for HuggingFace embeddings             | `all-MiniLM-L6-v2`                     |
-| `LITELLM_MODEL`             | LiteLLM model name                               | `llama3.2`                             |
+| `LLM_MODEL`             | LLM model name                               | `llama3.2`                             |
 | `DATA_DIR`                  | Directory for storing documents and chat history | `./data/`                              |
 | `SESSION_FILE`              | Path for saving chat history                     | `./data/chat_history.json`             |
 | `CONFLUENCE_API_URL`        | Base URL for Confluence API                      | None                                   |

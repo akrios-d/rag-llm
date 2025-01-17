@@ -5,7 +5,7 @@ import logging
 from langchain.schema import Document
 from langchain_community.document_loaders import TextLoader, UnstructuredHTMLLoader, UnstructuredPDFLoader
 import requests
-from common.config import CONFLUENCE_API_URL, CONFLUENCE_API_KEY, MANTIS_API_URL, MANTIS_API_KEY, SESSION_FILE, DATA_DIR
+from common.config import CONFLUENCE_API_URL, CONFLUENCE_API_KEY, CONFLUENCE_API_USER, MANTIS_API_URL, MANTIS_API_KEY, SESSION_FILE, DATA_DIR
 
 logger = logging.getLogger(__name__)
 
@@ -24,13 +24,13 @@ def load_documents(from_confluence=False, from_mantis=False, use_history=False):
     return documents
 
 def fetch_confluence_pages():
+    """Fetches the content of a Confluence page using the REST API."""
     documents = []
-    headers = {"Authorization": f"Bearer {CONFLUENCE_API_KEY}"}
+    CONFLUENCE_AUTH = (CONFLUENCE_API_USER, CONFLUENCE_API_KEY)  # Replace with actual Confluence username and API token
+
     for page_id in os.getenv("CONFLUENCE_PAGE_IDS", "").split(","):
-        response = requests.get(
-            f"{CONFLUENCE_API_URL}/rest/api/content/{page_id}?expand=body.storage",
-            headers=headers
-        )
+        url = f"{CONFLUENCE_API_URL}/{page_id}?expand=body.storage"
+        response = requests.get(url, auth=CONFLUENCE_AUTH )
         if response.status_code == 200:
             content = response.json()["body"]["storage"]["value"]
             documents.append(Document(page_content=content, metadata={"source": f"Confluence - {page_id}"}))
