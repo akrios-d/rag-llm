@@ -44,5 +44,10 @@ def ask_question():
 
     return jsonify({"answer": answer})
 
+@app.route("/health", methods=["GET"])
+def health_check():
+    """Health check endpoint."""
+    return jsonify({"status": "ok"}), 200
+    
 if __name__ == "__main__":
     app.run(debug=True)
