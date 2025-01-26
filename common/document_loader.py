@@ -70,7 +70,7 @@ def load_local_files():
                 if file_path.endswith('.pdf'):
                     loader = UnstructuredPDFLoader(file_path)
                 elif file_path.endswith('.txt'):
-                    loader = TextLoader(file_path)
+                    loader = TextLoader(file_path, encoding = 'UTF-8')
                 elif file_path.endswith('.html'):
                     loader = UnstructuredHTMLLoader(file_path)
                 else:

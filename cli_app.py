@@ -4,16 +4,13 @@ from common.chat_history import ChatHistoryManager
 from common.document_loader import load_documents
 from common.vectorstore import create_vectorstore
 from common.retriever import create_retriever, create_chain
-from common.config import LLM_MODEL
+from common.config import LLM_MODEL, DATA_DIR, SESSION_FILE
 from langchain.memory import ConversationBufferMemory
 from langchain_ollama import ChatOllama
 
 # Initialize logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-
-DATA_DIR = "./data/"
-SESSION_FILE = os.path.join(DATA_DIR, "chat_history.json")
 
 def main():
     """CLI application for querying documents."""
