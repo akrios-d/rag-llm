@@ -38,6 +38,46 @@ def fetch_confluence_pages():
             logger.error(f"Error fetching Confluence page {page_id}. Status: {response.status_code}")
     return documents
 
+def fetch_all_confluence_pages():
+    """Fetches the content of all Confluence pages using the REST API."""
+    documents = []
+    CONFLUENCE_AUTH = (os.getenv("CONFLUENCE_API_USER"), os.getenv("CONFLUENCE_API_KEY"))  # Replace with actual Confluence username and API token
+    CONFLUENCE_API_URL = os.getenv("CONFLUENCE_API_URL")  # Replace with your Confluence URL
+
+    # Confluence API endpoint for fetching pages
+    url = f"{CONFLUENCE_API_URL}/rest/api/content"
+    
+    # Pagination variables
+    start = 0
+    limit = 25  # Adjust as needed, up to 100
+
+    while True:
+        params = {
+            'start': start,
+            'limit': limit,
+            'expand': 'body.storage',  # Expand the body content
+        }
+
+        # Send the request to get pages
+        response = requests.get(url, auth=CONFLUENCE_AUTH, params=params)
+        if response.status_code == 200:
+            data = response.json()
+            for page in data['results']:
+                content = page["body"]["storage"]["value"]
+                page_id = page["id"]
+                documents.append(Document(page_content=content, metadata={"source": f"Confluence - {page_id}"}))
+
+            # Check if there are more pages
+            if 'next' in data['_links']:
+                start += limit  # Move to the next page
+            else:
+                break  # No more pages to fetch
+        else:
+            logger.error(f"Error fetching Confluence pages. Status: {response.status_code}")
+            break
+
+    return documents
+
 def fetch_mantis_issues():
     documents = []
     headers = {"Authorization": f"Bearer {MANTIS_API_KEY}"}
