@@ -2,6 +2,7 @@ langchain==0.3.15
 langchain_community==0.3.15
 langchain_huggingface==0.1.2
 langchain_ollama==0.2.2
+langgrap==0.2.73
 unstructured==0.16.15
 pdfminer.six==20240706
 pi_heif==0.21.0
