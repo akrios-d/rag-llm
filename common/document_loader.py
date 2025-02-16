@@ -41,8 +41,7 @@ def fetch_confluence_pages():
 def fetch_all_confluence_pages():
     """Fetches the content of all Confluence pages using the REST API."""
     documents = []
-    CONFLUENCE_AUTH = (os.getenv("CONFLUENCE_API_USER"), os.getenv("CONFLUENCE_API_KEY"))  # Replace with actual Confluence username and API token
-    CONFLUENCE_API_URL = os.getenv("CONFLUENCE_API_URL")  # Replace with your Confluence URL
+    CONFLUENCE_AUTH = (CONFLUENCE_API_USER, CONFLUENCE_API_KEY)  # Replace with actual Confluence username and API token
 
     # Confluence API endpoint for fetching pages
     url = f"{CONFLUENCE_API_URL}/rest/api/content"
