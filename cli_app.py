@@ -14,6 +14,10 @@ from common.llm_chooser import get_llm
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+# Updated memory initialization
+def create_memory():
+    return ConversationBufferMemory(input_key="question", memory_key="history")
+
 def main() -> None:
     """
     Main function to run the interactive document query CLI application.
@@ -30,7 +34,7 @@ def main() -> None:
         logger.error(e)
         return
 
-    memory = ConversationBufferMemory(input_key="question", memory_key="history")
+    memory = create_memory()
 
     chat_manager = ChatHistoryManager(session_file=SESSION_FILE)
     try:
@@ -58,7 +62,7 @@ def main() -> None:
             logger.info("Interactive session terminated by user.")
             break
 
-        if user_question.lower() == "exit":
+        if user_question.lower() == "exit" or user_question.lower() == "quit" :
             break
 
         if not user_question:
