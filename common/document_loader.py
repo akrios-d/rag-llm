@@ -1,120 +1,54 @@
-import os
-import glob
-import json
 import logging
+from typing import List
 from langchain.schema import Document
-from langchain_community.document_loaders import TextLoader, UnstructuredHTMLLoader, UnstructuredPDFLoader
-import requests
-from common.config import CONFLUENCE_API_URL, CONFLUENCE_API_KEY, CONFLUENCE_API_USER, MANTIS_API_URL, MANTIS_API_KEY, SESSION_FILE, DATA_DIR
+
+from common.documentsExtension.confluence_extension import fetch_confluence_pages
+from common.documentsExtension.mantis_extension import fetch_mantis_issues
+from common.documentsExtension.local_file_extension import load_local_files
+from common.documentsExtension.chat_history_extension import load_chat_history
 
 logger = logging.getLogger(__name__)
 
-def load_documents(from_confluence=False, from_mantis=False, use_history=False):
-    documents = []
+def load_documents(from_confluence=False, from_mantis=False, use_history=False) -> List[Document]:
+    """
+    Loads documents from various sources.
 
-    documents.extend(load_local_files())
+    Args:
+        from_confluence (bool): If True, fetch documents from Confluence.
+        from_mantis (bool): If True, fetch documents from Mantis.
+        use_history (bool): If True, fetch chat history.
 
+    Returns:
+        List[Document]: List of documents fetched from the selected sources.
+    """
+    logger.info("Loading documents...")
+
+    # Start by loading local files
+    logger.info("Loading documents from local files...")
+    documents = load_local_files()
+    logger.info("Loaded %d documents from local files.", len(documents))
+
+    # Fetch from Confluence if specified
     if from_confluence:
-        documents.extend(fetch_confluence_pages())
+        logger.info("Fetching documents from Confluence...")
+        confluence_documents = fetch_confluence_pages()
+        documents.extend(confluence_documents)
+        logger.info("Loaded %d documents from Confluence.", len(confluence_documents))
+
+    # Fetch from Mantis if specified
     if from_mantis:
-        documents.extend(fetch_mantis_issues())
+        logger.info("Fetching documents from Mantis...")
+        mantis_documents = fetch_mantis_issues()
+        documents.extend(mantis_documents)
+        logger.info("Loaded %d documents from Mantis.", len(mantis_documents))
+
+    # Fetch chat history if specified
     if use_history:
-        documents.extend(use_history())
+        logger.info("Loading chat history...")
+        history_documents = load_chat_history()
+        documents.extend(history_documents)
+        logger.info("Loaded %d chat history documents.", len(history_documents))
+
+    logger.info("Total %d documents loaded.", len(documents))
     
-    return documents
-
-def fetch_confluence_pages():
-    """Fetches the content of a Confluence page using the REST API."""
-    documents = []
-    CONFLUENCE_AUTH = (CONFLUENCE_API_USER, CONFLUENCE_API_KEY)  # Replace with actual Confluence username and API token
-
-    for page_id in os.getenv("CONFLUENCE_PAGE_IDS", "").split(","):
-        url = f"{CONFLUENCE_API_URL}/{page_id}?expand=body.storage"
-        response = requests.get(url, auth=CONFLUENCE_AUTH )
-        if response.status_code == 200:
-            content = response.json()["body"]["storage"]["value"]
-            documents.append(Document(page_content=content, metadata={"source": f"Confluence - {page_id}"}))
-        else:
-            logger.error(f"Error fetching Confluence page {page_id}. Status: {response.status_code}")
-    return documents
-
-def fetch_all_confluence_pages():
-    """Fetches the content of all Confluence pages using the REST API."""
-    documents = []
-    CONFLUENCE_AUTH = (CONFLUENCE_API_USER, CONFLUENCE_API_KEY)  # Replace with actual Confluence username and API token
-
-    # Confluence API endpoint for fetching pages
-    url = f"{CONFLUENCE_API_URL}/rest/api/content"
-    
-    # Pagination variables
-    start = 0
-    limit = 25  # Adjust as needed, up to 100
-
-    while True:
-        params = {
-            'start': start,
-            'limit': limit,
-            'expand': 'body.storage',  # Expand the body content
-        }
-
-        # Send the request to get pages
-        response = requests.get(url, auth=CONFLUENCE_AUTH, params=params)
-        if response.status_code == 200:
-            data = response.json()
-            for page in data['results']:
-                content = page["body"]["storage"]["value"]
-                page_id = page["id"]
-                documents.append(Document(page_content=content, metadata={"source": f"Confluence - {page_id}"}))
-
-            # Check if there are more pages
-            if 'next' in data['_links']:
-                start += limit  # Move to the next page
-            else:
-                break  # No more pages to fetch
-        else:
-            logger.error(f"Error fetching Confluence pages. Status: {response.status_code}")
-            break
-
-    return documents
-
-def fetch_mantis_issues():
-    documents = []
-    headers = {"Authorization": f"Bearer {MANTIS_API_KEY}"}
-    response = requests.get(f"{MANTIS_API_URL}/issues", headers=headers)
-    if response.status_code == 200:
-        issues = response.json()
-        for issue in issues:
-            content = f"{issue['summary']}\n{issue['description']}"
-            documents.append(Document(page_content=content, metadata={"source": "Mantis"}))
-    else:
-        logger.error(f"Error fetching Mantis issues. Status: {response.status_code}")
-    return documents
-
-def load_chat_history():
-    documents = []
-     # Load chat history
-    if os.path.exists(SESSION_FILE):
-        with open(SESSION_FILE, 'r') as f:
-            chat_history = json.load(f)
-        for chat in chat_history:
-            documents.append(Document(page_content=chat["response"], metadata={"source": "ChatHistory"}))
-    return documents
-
-def load_local_files():
-    documents = []
-    # Load local files
-    for ext in ['*.pdf', '*.txt', '*.html']:
-        for file_path in glob.glob(os.path.join(DATA_DIR, ext)):
-            try:
-                if file_path.endswith('.pdf'):
-                    loader = UnstructuredPDFLoader(file_path)
-                elif file_path.endswith('.txt'):
-                    loader = TextLoader(file_path, encoding = 'UTF-8')
-                elif file_path.endswith('.html'):
-                    loader = UnstructuredHTMLLoader(file_path)
-                else:
-                    continue
-                documents.extend(loader.load())
-            except Exception as e:
-                logger.error(f"Error loading file {file_path}: {e}")
     return documents
