@@ -1,6 +1,5 @@
 import logging
 from common import chain_singleton
-from common.chain_singleton import ChainSingleton
 from initialize import initialize_resources, chat_manager
 
 # Initialize logging
@@ -36,7 +35,6 @@ def process_user_question(user_question: str, chat_history: list) -> None:
             return
 
         # Invoke the chain with the user's question and get the response
-
         chain_instance = chain_singleton.ChainSingleton.get_instance()
 
         # Now, access the chain via the instance

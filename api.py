@@ -1,20 +1,22 @@
 from flask import Flask, request, jsonify
 import logging
 
-from initialize import initialize_resources, chain, chat_manager
+from common import chain_singleton
+from initialize import initialize_resources, chat_manager
 app = Flask(__name__)
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-@app.before_first_request
-def startup() -> None:
+def initialize():
     """
     Startup function to initialize resources before handling any requests.
     """
     if not initialize_resources():
         logger.error("Resource initialization failed. The application may not work properly.")
+
+initialize()
 
 @app.route("/ask", methods=["POST"])
 def ask_question():
@@ -40,12 +42,13 @@ def ask_question():
         logger.error(f"Error loading chat history: {e}")
         chat_history = []
 
-    # Ensure the processing chain is initialized
-    if chain is None:
-        return jsonify({"error": "Processing chain not initialized"}), 500
-
     # Process the question
     try:
+        # Invoke the chain with the user's question and get the response
+        chain_instance = chain_singleton.ChainSingleton.get_instance()
+
+        # Now, access the chain via the instance
+        chain = chain_instance.get_chain()
         response = chain.invoke(input={"question": user_question})
         # Adjust response extraction as needed.
         answer = response  
