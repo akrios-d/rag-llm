@@ -285,3 +285,38 @@ The provided Docker Compose configuration includes services for **PostgreSQL**, 
     This will ensure that the `llama3.2` model is available in your system.
 
 After these steps, the system will be fully operational, and you can use the `ollama` model for document retrieval and querying as part of the Dockerized environment.
+
+
+## Future Work
+
+### Multimodal Retrieval
+
+In the future, this system will evolve into a **multimodal** retrieval system that can handle not only text-based documents but also images, audio, tables, figures, and other types of media. This will allow users to query across a diverse set of document types, improving the richness and depth of answers provided by the system.
+
+Key features to be added include:
+
+- **Image Retrieval**: Integration of models like **CLIP** that can generate embeddings for images and link them with text. This will allow image-based searches alongside traditional text-based searches. Additionally, **OCR** (Optical Character Recognition) will be incorporated to extract text from images.
+  
+- **Audio Retrieval**: Implementation of **speech-to-text** models (e.g., Google Speech-to-Text or DeepSpeech) to transcribe audio files into text, which can then be used in the same way as textual data for querying.
+
+- **Table and Figure Extraction**: Enhancements to document loaders to support extracting and processing data from tables and figures. This will allow the system to retrieve structured data (e.g., tables from PDFs) and images (e.g., charts and graphs) based on textual queries.
+
+- **Multimodal Embeddings**: Utilization of models like **CLIP** or similar to create unified embeddings for text, images, and audio. This will enable searching across all modalities using a single query, such as combining image and text-based information to retrieve the most relevant documents and media.
+
+These additions will significantly expand the system's capabilities, enabling more dynamic and comprehensive query handling.
+
+### Memory Enhancements
+
+To make interactions with the system more personalized and context-aware, the **memory** capabilities will be enhanced to provide a richer user experience. Current plans for memory enhancements include:
+
+- **Contextual Memory**: Implementing a **memory buffer** that stores past interactions, allowing the system to maintain the context of the conversation across multiple queries. This will help to provide more consistent and relevant answers based on previous conversations and queries.
+  
+- **Long-Term Memory**: Integrating a long-term memory system that can store important information across sessions, enabling the system to "remember" critical data and adapt responses based on past interactions. This could be stored in a database or vector store for efficient retrieval.
+
+- **User-Specific Memory**: Allowing users to opt into a personalized memory system where the model retains preferences, interests, or frequently asked questions. This will enhance the relevance and personalization of responses in future sessions.
+
+These memory enhancements will make the system more intelligent, capable of adapting over time to better suit the needs of individual users.
+
+### Overall Vision
+
+By combining **multimodal** capabilities with advanced **memory** features, the system will become more dynamic, intelligent, and user-friendly, offering richer interactions and more powerful document retrieval from a wide variety of data sources.
