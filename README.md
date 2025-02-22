@@ -261,21 +261,6 @@ This configuration setup ensures flexibility and ease of integration with variou
 
 The project uses Python’s logging module for better traceability and debugging. Ensure that logging is appropriately configured to capture warnings, errors, and important events. Logs are written to the console by default, but you can configure it to write to files as needed.
 
----
-
-## Helper Functions
-
-The following helper functions are available to manage various operations more efficiently:
-
-- `get_env_str()`: Fetches environment variables as strings.
-- `get_env_int()`: Fetches environment variables as integers with error handling.
-- `get_env_bool()`: Fetches environment variables as booleans (from values like true, 1, yes).
-- `get_env_list()`: Fetches environment variables as lists by splitting on commas.
-
-These functions provide better validation and error handling, ensuring the application runs smoothly without missing or incorrect configuration.
-
----
-
 ## Docker Compose
 
 The provided Docker Compose configuration includes services for **PostgreSQL**, **Elasticsearch**, and **Ollama**. However, you can choose which services to keep or modify according to your needs.
