@@ -52,7 +52,7 @@ The system reads configuration values from environment variables, typically stor
 
 | Variable                        | Description                                                | Default                                  |
 |----------------------------------|------------------------------------------------------------|------------------------------------------|
-| `DB_TYPE`                        | Type of the vector store (e.g., `chroma`, `postgresql`)     | `chroma`                                 |
+| `DB_TYPE`                        | Type of the vector store (`chroma`, `postgresql`, `elasticsearch`)     | `chroma`                                 |
 | **PostgreSQL Configuration**     |                                                            |                                          |
 | `POSTGRES_HOST`                  | Host for PostgreSQL                                         | `localhost`                              |
 | `POSTGRES_PORT`                  | Port for PostgreSQL                                         | `5432`                                   |
