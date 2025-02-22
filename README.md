@@ -146,22 +146,38 @@ This configuration setup ensures flexibility and ease of integration with variou
 
 1. **Start the CLI app:**
 
+    To start the CLI app, run the following command:
+
     ```bash
     python cli_app.py
     ```
 
-2. **Interactive Session:**
+2. **Choosing Document Sources and Options:**
 
-    You'll be prompted to:
-    - Fetch documents from Confluence or MantisBT.
-    - Choose a vector database (Chroma/Postgres).
-    - Choose an embedding model (HuggingFace/OpenAI).
-    - Ask questions interactively, and the system will use the documents to provide answers.
+    In the `initialize.py` file, you can choose the sources and configurations that best suit your needs. 
+
+    The `load_documents()` function is responsible for fetching documents, and it has the following signature:
+
+    ```python
+    def load_documents(from_confluence=False, from_mantis=False, use_history=False) -> List[Document]:
+    ```
+
+    On line 41 of `initialize.py`, you'll find the following:
+
+    ```python
+    documents = load_documents(use_history=True)
+    ```
+
+    - **`from_confluence`:** Set this to `True` if you want to fetch documents from Confluence.
+    - **`from_mantis`:** Set this to `True` if you want to fetch documents from MantisBT.
+    - **`use_history`:** Set this to `True` if you want to load chat history from previous sessions.
+
+    For now, you can modify this file to activate the sources you wish to use. In the future, these options will be configurable through environment variables.
 
 3. **Chat History:**
 
     - Chat history is saved to `./data/chat_history.json`.
-    - This file will be included in subsequent sessions.
+    - This file will be included in subsequent sessions, allowing you to maintain continuity in conversations.
 
 ---
 
