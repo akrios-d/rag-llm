@@ -4,7 +4,8 @@ from langchain_huggingface import HuggingFaceEmbeddings
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from common.config import (
     DB_TYPE, CHROMA_COLLECTION_NAME, POSTGRES_CONNECTION_STRING, 
-    EMBEDDING_MODEL, EMBEDDING_MODEL_NAME, ELASTICSEARCH_URL, ELASTICSEARCH_INDEX
+    EMBEDDING_MODEL, EMBEDDING_MODEL_NAME, ELASTICSEARCH_URL, ELASTICSEARCH_INDEX,
+    ELASTICSEARCH_USERNAME, ELASTICSEARCH_PASSWORD
 )
 import logging
 
@@ -81,12 +82,22 @@ def create_vectorstore(documents):
     if DB_TYPE == "chroma":
         logger.info("Using Chroma as the vector store.")
         vectorstore = Chroma.from_documents(documents, embedding, collection_name=CHROMA_COLLECTION_NAME)
+
     elif DB_TYPE == "postgres":
-        logger.info("Using PostgreSQL (PGVector) as the vector store.")
+        logger.info(f"Using PostgreSQL (PGVector) with connection: {POSTGRES_CONNECTION_STRING}")
         vectorstore = PGVector.from_documents(documents, embedding, connection_string=POSTGRES_CONNECTION_STRING)
+
     elif DB_TYPE == "elasticsearch":
-        logger.info("Using Elasticsearch as the vector store.")
-        vectorstore = ElasticVectorSearch.from_documents(documents, embedding, es_url=ELASTICSEARCH_URL, index_name=ELASTICSEARCH_INDEX)
+
+        logger.info(f"Using Elasticsearch at {ELASTICSEARCH_URL}, index: {ELASTICSEARCH_INDEX}")
+        vectorstore = ElasticVectorSearch.from_documents(
+            documents,
+            embedding,
+            es_url=ELASTICSEARCH_URL,
+            index_name=ELASTICSEARCH_INDEX,
+            http_auth=(ELASTICSEARCH_USERNAME, ELASTICSEARCH_PASSWORD)  # Use auth from .env
+        )
+
     else:
         logger.error("Unsupported database type: %s", DB_TYPE)
         raise ValueError("Unsupported database type!")
