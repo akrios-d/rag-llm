@@ -3,18 +3,19 @@ import logging
 import tempfile
 from pathlib import Path
 from typing import List, Dict, Any
+from common.config import SESSION_FILE
 
 logger = logging.getLogger(__name__)
 
 class ChatHistoryManager:
-    def __init__(self, session_file: str) -> None:
+    def __init__(self) -> None:
         """
         Initializes the chat history manager.
 
         Args:
             session_file (str): Path to the session file for storing chat history.
         """
-        self.session_file: Path = Path(session_file)
+        self.session_file: Path = Path(SESSION_FILE)
         self.chat_history: List[Dict[str, Any]] = self.load_chat_history()
 
     def load_chat_history(self) -> List[Dict[str, Any]]:

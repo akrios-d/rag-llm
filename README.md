@@ -83,6 +83,11 @@ The system reads configuration values from environment variables, typically stor
 | **MantisBT Configuration**       |                                                            |                                          |
 | `MANTIS_API_URL`                 | Base URL for MantisBT API                                   | None                                     |
 | `MANTIS_API_KEY`                 | API key for MantisBT                                        | None                                     |
+| **Document Retrieval Configuration** |                                                            |                                          |
+| `USE_HISTORY`                        | Enable chat history for continuity in sessions      | `False`         |
+| `USE_MANTIS`                         | Retrieve data from MantisBT                         | `False`         |
+| `USE_CONFLUENCE`                     | Retrieve data from Confluence                      | `False`         |
+| `USE_MULTIQUERY`                      | Enable multi-query retrieval for better results    | `True`          |
 
 ---
 
@@ -137,10 +142,18 @@ CONFLUENCE_API_USER=
 CONFLUENCE_PAGE_IDS=
 MANTIS_API_URL=
 MANTIS_API_KEY=
+USE_HISTORY=False
+USE_MANTIS=False
+USE_CONFLUENCE=False
+USE_MULTIQUERY=True
 ```
 This configuration setup ensures flexibility and ease of integration with various data sources, databases, and machine learning models.
 
 ---
+
+### Choosing Document Sources and Options
+
+You can configure which document sources and features you want to use via environment variables. These settings apply to both the CLI and API versions.
 
 ## Running the CLI Version
 
@@ -152,29 +165,7 @@ This configuration setup ensures flexibility and ease of integration with variou
     python cli_app.py
     ```
 
-2. **Choosing Document Sources and Options:**
-
-    In the `initialize.py` file, you can choose the sources and configurations that best suit your needs. 
-
-    The `load_documents()` function is responsible for fetching documents, and it has the following signature:
-
-    ```python
-    def load_documents(from_confluence=False, from_mantis=False, use_history=False) -> List[Document]:
-    ```
-
-    On line 41 of `initialize.py`, you'll find the following:
-
-    ```python
-    documents = load_documents(use_history=True)
-    ```
-
-    - **`from_confluence`:** Set this to `True` if you want to fetch documents from Confluence.
-    - **`from_mantis`:** Set this to `True` if you want to fetch documents from MantisBT.
-    - **`use_history`:** Set this to `True` if you want to load chat history from previous sessions.
-
-    For now, you can modify this file to activate the sources you wish to use. In the future, these options will be configurable through environment variables.
-
-3. **Chat History:**
+2. **Chat History:**
 
     - Chat history is saved to `./data/chat_history.json`.
     - This file will be included in subsequent sessions, allowing you to maintain continuity in conversations.

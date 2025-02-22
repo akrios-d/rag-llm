@@ -6,6 +6,8 @@ from langchain_core.runnables import RunnablePassthrough
 
 logger = logging.getLogger(__name__)
 
+from common.config import USE_MULTIQUERY
+
 # Multi-query retriever prompt
 MULTI_QUERY_PROMPT = ChatPromptTemplate.from_messages([
     ("system", "You are an AI language model assistant. Your task is to generate five different versions "
@@ -30,13 +32,13 @@ User Question: {question}
 Provide a detailed and accurate response based on the documents above."""
 
 
-def create_retriever(vector_db, llm, use_multiquery):
+def create_retriever(vector_db, llm):
     """Creates a retriever, optionally using MultiQueryRetriever."""
 
     if not vector_db:
         raise ValueError("Vector database cannot be None.")
     
-    if use_multiquery:
+    if USE_MULTIQUERY:
         logger.info("Using MultiQueryRetriever...")
         return MultiQueryRetriever.from_llm(vector_db.as_retriever(), llm, prompt=MULTI_QUERY_PROMPT)
     else:

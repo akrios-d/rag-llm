@@ -83,6 +83,12 @@ CONFLUENCE_PAGE_IDS = get_env_list("CONFLUENCE_PAGE_IDS")
 MANTIS_API_URL = get_env_str("MANTIS_API_URL")
 MANTIS_API_KEY = get_env_str("MANTIS_API_KEY")
 
+# DOCUMENTS
+USE_HISTORY = get_env_bool("USE_HISTORY", False)
+USE_MANTIS = get_env_bool("USE_MANTIS", False)
+USE_CONFLUENCE = get_env_bool("USE_CONFLUENCE", False)
+USE_MULTIQUERY = get_env_bool("USE_MULTIQUERY", True)
+
 # === Log Missing Critical Variables ===
 critical_vars = {
     "POSTGRES_CONNECTION_STRING": POSTGRES_CONNECTION_STRING,
@@ -94,4 +100,4 @@ critical_vars = {
 
 for var_name, value in critical_vars.items():
     if not value:
-        logger.warning(f"⚠️ Critical environment variable {var_name} is missing or empty!")
+        logger.warning(f"Critical environment variable {var_name} is missing or empty!")
