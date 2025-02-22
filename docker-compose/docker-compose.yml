@@ -9,7 +9,7 @@ services:
     restart: unless-stopped
 
   postgres:
-    image: postgres
+    image: ankane/pgvector
     container_name: postgres
     restart: always
     shm_size: 256mb  # Increased shared memory for better performance
