@@ -52,7 +52,7 @@ The system reads configuration values from environment variables, typically stor
 
 | Variable                        | Description                                                | Default                                  |
 |----------------------------------|------------------------------------------------------------|------------------------------------------|
-| `DB_TYPE`                        | Type of the vector store (`chroma`, `postgresql`, `elasticsearch`)     | `chroma`                                 |
+| `DB_TYPE`                        | Type of the vector store (`chroma`, `postgres`, `elasticsearch`)     | `chroma`                                 |
 | **PostgreSQL Configuration**     |                                                            |                                          |
 | `POSTGRES_HOST`                  | Host for PostgreSQL                                         | `localhost`                              |
 | `POSTGRES_PORT`                  | Port for PostgreSQL                                         | `5432`                                   |
@@ -120,7 +120,7 @@ The system uses the `python-dotenv` package to load environment variables from a
 Here is a sample `.env` file format for configuring the system:
 
 ```ini
-DB_TYPE=postgresql
+DB_TYPE=
 POSTGRES_HOST=localhost
 POSTGRES_PORT=5432
 POSTGRES_DB=mydatabase
