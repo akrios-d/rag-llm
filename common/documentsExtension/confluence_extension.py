@@ -2,6 +2,7 @@ from typing import List
 from langchain.schema import Document
 import logging
 import requests
+from bs4 import BeautifulSoup
 
 logger = logging.getLogger(__name__)
 
@@ -38,8 +39,10 @@ def fetch_confluence_pages(paginate=False) -> List[Document]:
 
                 for page in data.get("results", []):
                     content = page.get("body", {}).get("storage", {}).get("value", "")
+                    soup = BeautifulSoup(content, "html.parser")
+                    lean_text = soup.get_text()
                     page_id = page.get("id", "unknown")
-                    documents.append(Document(page_content=content, metadata={"source": f"Confluence - {page_id}"}))
+                    documents.append(Document(page_content=lean_text, metadata={"source": f"Confluence - {page_id}"}))
                     logger.info(f"Successfully fetched page {page_id}.")
                 
                 if "next" in data.get("_links", {}):
@@ -60,7 +63,9 @@ def fetch_confluence_pages(paginate=False) -> List[Document]:
 
             if response.status_code == 200:
                 content = response.json().get("body", {}).get("storage", {}).get("value", "")
-                documents.append(Document(page_content=content, metadata={"source": f"Confluence - {page_id}"}))
+                soup = BeautifulSoup(content, "html.parser")
+                lean_text = soup.get_text()
+                documents.append(Document(page_content=lean_text, metadata={"source": f"Confluence - {page_id}"}))
                 logger.info(f"Successfully fetched page {page_id}.")
             else:
                 logger.error(f"Error fetching Confluence page {page_id}. Status: {response.status_code}, Response: {response.text}")
