@@ -137,6 +137,7 @@ CONFLUENCE_API_USER=
 CONFLUENCE_PAGE_IDS=
 MANTIS_API_URL=
 MANTIS_API_KEY=
+```
 This configuration setup ensures flexibility and ease of integration with various data sources, databases, and machine learning models.
 
 ---
