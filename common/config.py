@@ -89,6 +89,9 @@ USE_MANTIS = get_env_bool("USE_MANTIS", False)
 USE_CONFLUENCE = get_env_bool("USE_CONFLUENCE", False)
 USE_MULTIQUERY = get_env_bool("USE_MULTIQUERY", True)
 
+#OPEN AI
+OPENAI_API_KEY = get_env_str("OPENAI_API_KEY")
+
 # === Log Missing Critical Variables ===
 critical_vars = {
     "POSTGRES_CONNECTION_STRING": POSTGRES_CONNECTION_STRING,
@@ -96,6 +99,7 @@ critical_vars = {
     "MANTIS_API_KEY": MANTIS_API_KEY,
     "CONFLUENCE_API_URL": CONFLUENCE_API_URL,
     "CONFLUENCE_API_KEY": CONFLUENCE_API_KEY,
+    "ELASTICSEARCH_URL": ELASTICSEARCH_URL,
 }
 
 for var_name, value in critical_vars.items():
