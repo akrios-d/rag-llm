@@ -3,10 +3,6 @@ import logging
 from dotenv import load_dotenv
 from pathlib import Path
 from typing import List, Optional
-from langchain_community.vectorstores import PGVector, Chroma, ElasticVectorSearch
-from langchain_community.embeddings import OpenAIEmbeddings
-from langchain_huggingface import HuggingFaceEmbeddings
-from langchain.text_splitter import RecursiveCharacterTextSplitter
 
 # Load environment variables from .env file
 load_dotenv()

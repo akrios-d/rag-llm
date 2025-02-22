@@ -3,15 +3,18 @@ from langchain_community.vectorstores import PGVector, Chroma, ElasticsearchStor
 from langchain_community.embeddings import OpenAIEmbeddings
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from sqlalchemy import create_engine
 from common.config import (
     DB_TYPE, CHROMA_COLLECTION_NAME, POSTGRES_CONNECTION_STRING, 
     EMBEDDING_MODEL, EMBEDDING_MODEL_NAME, ELASTICSEARCH_URL, ELASTICSEARCH_INDEX,
     ELASTICSEARCH_USERNAME, ELASTICSEARCH_PASSWORD, POSTGRES_HOST, POSTGRES_DB
 )
 import logging
+import hashlib
 
 logger = logging.getLogger(__name__)
+
+def generate_stable_id(doc):
+    return hashlib.sha256(doc.page_content.encode('utf-8')).hexdigest()
 
 def chunk_documents(documents, chunk_size=512, chunk_overlap=50):
     """
@@ -100,7 +103,8 @@ def reset_elasticsearch_index():
 
 def create_vectorstore(documents):
     """
-    Creates a vector store (Chroma, PostgreSQL, or Elasticsearch) from the documents.
+    Creates a vector store (Chroma, PostgreSQL, or Elasticsearch) from the documents,
+    ensuring upsert behavior for PGVector.
 
     Args:
         documents (list): The list of documents to be added to the vector store.
@@ -127,20 +131,41 @@ def create_vectorstore(documents):
 
     elif DB_TYPE == "postgres":
         logger.info(f"Using PostgreSQL (PGVector) with connection: {POSTGRES_HOST}")
-        vectorstore = PGVector.from_documents(documents, embedding, connection_string=POSTGRES_CONNECTION_STRING)
+
+        vectorstore = PGVector(
+            connection_string=POSTGRES_CONNECTION_STRING,
+            embedding_function=embedding,
+            collection_name=POSTGRES_DB
+        )
+
+        # Generate stable unique IDs (use a hash of content or a unique identifier from metadata)
+        ids = [generate_stable_id(doc) for doc in documents]
+
+         # **Upsert Logic: Delete existing documents first**
+        vectorstore.delete(ids)
+
+        # Add new documents with metadata
+        vectorstore.add_texts(
+            texts=[doc.page_content for doc in documents],
+            metadatas=[doc.metadata for doc in documents],
+            ids=ids
+        )
+
+        logger.info("Upsert completed for PGVector.")
 
     elif DB_TYPE == "elasticsearch":
         logger.info(f"Using Elasticsearch at {ELASTICSEARCH_URL}, index: {ELASTICSEARCH_INDEX}")
         reset_elasticsearch_index()
         vectorstore = ElasticsearchStore.from_documents(
-                documents,
-                embedding,
-                es_url=ELASTICSEARCH_URL,
-                es_user=ELASTICSEARCH_USERNAME,
-                es_password=ELASTICSEARCH_PASSWORD,                
-                index_name=ELASTICSEARCH_INDEX
+            documents,
+            embedding,
+            es_url=ELASTICSEARCH_URL,
+            es_user=ELASTICSEARCH_USERNAME,
+            es_password=ELASTICSEARCH_PASSWORD,                
+            index_name=ELASTICSEARCH_INDEX
         )
         logger.info("Vector store initialized successfully with Elasticsearch.")
+
     else:
         logger.error("Unsupported database type: %s", DB_TYPE)
         raise ValueError("Unsupported database type!")
