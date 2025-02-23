@@ -64,6 +64,7 @@ EMBEDDING_MODEL_NAME = get_env_str("EMBEDDING_MODEL_NAME", "all-MiniLM-L6-v2")
 
 # === LLM Model Configuration ===
 LLM_MODEL = get_env_str("LLM_MODEL", "llama3.2")
+LLM_PROVIDER = get_env_str("LLM_PROVIDER", "ollama")
 
 # === Data Storage ===
 DATA_DIR = Path(get_env_str("DATA_DIR", "./data/"))

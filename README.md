@@ -72,6 +72,7 @@ The system reads configuration values from environment variables, typically stor
 | `EMBEDDING_MODEL_NAME`           | Name of the embedding model (HuggingFace, OpenAI)           | `all-MiniLM-L6-v2`                       |
 | **LLM Model Configuration**      |                                                            |                                          |
 | `LLM_MODEL`                      | The LLM model name (e.g., `llama3.2`)                       | `llama3.2`                               |
+| `LLM_PROVIDER`                   | The LLM provider name (e.g., `ollama`)                       | `ollama`                               |
 | **Data Storage Configuration**   |                                                            |                                          |
 | `DATA_DIR`                       | Directory for storing documents and chat history            | `./data/`                                |
 | `SESSION_FILE`                   | Path for saving chat history (JSON format)                  | `./data/chat_history.json`               |

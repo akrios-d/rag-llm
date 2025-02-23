@@ -1,19 +1,24 @@
+import logging
+import hashlib
 from elasticsearch import Elasticsearch
-from langchain_community.vectorstores import PGVector, Chroma, ElasticsearchStore
-from langchain_community.embeddings import OpenAIEmbeddings
+
+from langchain_community.vectorstores import Chroma, ElasticsearchStore
 from langchain_huggingface import HuggingFaceEmbeddings
+from langchain_openai import OpenAIEmbeddings
 from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain_postgres import PGVector
+from sqlalchemy import create_engine
+
 from common.config import (
     DB_TYPE, CHROMA_COLLECTION_NAME, POSTGRES_CONNECTION_STRING, 
     EMBEDDING_MODEL, EMBEDDING_MODEL_NAME, ELASTICSEARCH_URL, ELASTICSEARCH_INDEX,
-    ELASTICSEARCH_USERNAME, ELASTICSEARCH_PASSWORD, POSTGRES_HOST, POSTGRES_DB
+    ELASTICSEARCH_USERNAME, ELASTICSEARCH_PASSWORD, POSTGRES_HOST
 )
-import logging
-import hashlib
 
 logger = logging.getLogger(__name__)
 
 def generate_stable_id(doc):
+    """Generate a stable ID using SHA-256 hashing for document consistency."""
     return hashlib.sha256(doc.page_content.encode('utf-8')).hexdigest()
 
 def chunk_documents(documents, chunk_size=512, chunk_overlap=50):
@@ -132,30 +137,35 @@ def create_vectorstore(documents):
     elif DB_TYPE == "postgres":
         logger.info(f"Using PostgreSQL (PGVector) with connection: {POSTGRES_HOST}")
 
-        vectorstore = PGVector(
-            connection_string=POSTGRES_CONNECTION_STRING,
-            embedding_function=embedding,
-            collection_name=POSTGRES_DB
-        )
+        # Set up engine and PGVector store
+        engine = create_engine(POSTGRES_CONNECTION_STRING)
+        vectorstore = PGVector(connection=engine, embeddings=embedding)
 
         # Generate stable unique IDs (use a hash of content or a unique identifier from metadata)
         ids = [generate_stable_id(doc) for doc in documents]
 
-         # **Upsert Logic: Delete existing documents first**
-        vectorstore.delete(ids)
+        # Check for duplicate IDs and remove them if necessary
+        unique_ids = list(set(ids))  # Remove duplicates by converting to a set
+
+        # **Upsert Logic: Delete existing documents first**
+        vectorstore.delete(unique_ids)
 
         # Add new documents with metadata
+        # Use the unique_ids for insertion (not the original ids list with duplicates)
         vectorstore.add_texts(
             texts=[doc.page_content for doc in documents],
             metadatas=[doc.metadata for doc in documents],
-            ids=ids
+            ids=unique_ids,  # Use unique_ids here to avoid conflicts
+            conflict_action='update'  # Ensure no duplicate `id` conflicts
         )
 
         logger.info("Upsert completed for PGVector.")
 
+
     elif DB_TYPE == "elasticsearch":
         logger.info(f"Using Elasticsearch at {ELASTICSEARCH_URL}, index: {ELASTICSEARCH_INDEX}")
         reset_elasticsearch_index()
+
         vectorstore = ElasticsearchStore.from_documents(
             documents,
             embedding,
@@ -164,6 +174,7 @@ def create_vectorstore(documents):
             es_password=ELASTICSEARCH_PASSWORD,                
             index_name=ELASTICSEARCH_INDEX
         )
+
         logger.info("Vector store initialized successfully with Elasticsearch.")
 
     else:
