@@ -27,7 +27,7 @@ def get_llm() -> Union[ChatOllama, ChatOpenAI, ChatHuggingFace]:
                          
     if LLM_PROVIDER == "ollama":
         logger.info(f"Using ChatOllama as the LLM provider with model: {LLM_MODEL}")
-        return ChatOllama(model=LLM_MODEL)
+        return ChatOllama(model=LLM_MODEL, temperature=0.3, max_tokens=512)
     
     if LLM_PROVIDER == "openai":
         logger.info(f"Using ChatOpenAI as the LLM provider with model: {LLM_MODEL}")

@@ -5,7 +5,6 @@ from common import chain_singleton
 from common.chat_history_manager import ChatHistoryManager
 from common.document_loader import load_documents
 from common.vectorstore import create_vectorstore
-from common.prompt import create_retriever
 from common.config import DATA_DIR
 from common.llm_chooser import get_llm
 

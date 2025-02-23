@@ -31,6 +31,7 @@ app = workflow.compile(
 def reply(input_message):
     for event in app.stream({"messages": [input_message]}, config, stream_mode="values"):
         return event["messages"][-1].pretty_print()
+
 # The thread id is a unique key that identifies
 # this particular conversation.
 # We'll just generate a random uuid here.
