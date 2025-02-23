@@ -1,4 +1,5 @@
 import logging
+from langchain.memory import ConversationBufferMemory
 from langchain.prompts import ChatPromptTemplate
 from langchain.retrievers.multi_query import MultiQueryRetriever
 from langchain_core.output_parsers import StrOutputParser
@@ -31,6 +32,8 @@ User Question: {question}
 
 Provide a detailed and accurate response based on the documents above."""
 
+def create_memory():
+    return ConversationBufferMemory(input_key="question", memory_key="history")
 
 def create_retriever(vector_db, llm):
     """Creates a retriever, optionally using MultiQueryRetriever."""
@@ -45,22 +48,20 @@ def create_retriever(vector_db, llm):
         logger.info("Using basic retriever...")
         return vector_db.as_retriever()
 
-def create_chain(retriever, llm, memory):
+def create_chain(vector_db, llm):
     """Creates the end-to-end RAG chain with memory."""
 
-    if not retriever:
-        raise ValueError("Retriever cannot be None.")
     if not llm:
         raise ValueError("LLM cannot be None.")
-    if not memory:
-        raise ValueError("Memory module cannot be None.")
     
+    retriever = create_retriever(vector_db, llm)
+
     logger.info("Creating RAG chain...")
 
     prompt = ChatPromptTemplate.from_template(RAG_PROMPT_TEMPLATE)
-
+    
     return (
-        {"context": retriever, "history": memory.load_memory_variables, "question": RunnablePassthrough()}
+        {"context": retriever, "history": create_memory().load_memory_variables, "question": RunnablePassthrough()}
         | prompt
         | llm
         | StrOutputParser()

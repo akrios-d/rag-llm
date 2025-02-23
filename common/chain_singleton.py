@@ -15,10 +15,10 @@ class ChainSingleton:
         return ChainSingleton._instance
 
 
-    def initialize_chain(self, retriever, llm, memory):
+    def initialize_chain(self, vector_db, llm):
         """Initializes the chain."""
         if ChainSingleton._chain is None:
-            ChainSingleton._chain = create_chain(retriever, llm, memory)
+            ChainSingleton._chain = create_chain(vector_db, llm)
         if ChainSingleton._chain is None:
             logger.error("Failed to create a valid chain.")
             return False

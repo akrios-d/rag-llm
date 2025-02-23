@@ -1,7 +1,6 @@
 import os
 import logging
 
-from langchain.memory import ConversationBufferMemory
 from common import chain_singleton
 from common.chat_history_manager import ChatHistoryManager
 from common.document_loader import load_documents
@@ -15,9 +14,6 @@ logger = logging.getLogger(__name__)
 # Global objects to be initialized at startup
 chat_manager = ChatHistoryManager()
 
-# Updated memory initialization
-def create_memory():
-    return ConversationBufferMemory(input_key="question", memory_key="history")
 
 def initialize_resources() -> bool:
     """
@@ -57,11 +53,9 @@ def initialize_resources() -> bool:
         logger.error(f"Error initializing LLM: {e}")
         return False
 
-    # Create chain with retriever and memory
+    # Create chain
     try:
-        memory = create_memory()
-        retriever = create_retriever(vector_db, llm)
-        chain = chain_singleton.ChainSingleton().initialize_chain(retriever, llm, memory)
+        chain = chain_singleton.ChainSingleton().initialize_chain(vector_db, llm)
        
     except Exception as e:
         logger.error(f"Error creating processing chain: {e}")
