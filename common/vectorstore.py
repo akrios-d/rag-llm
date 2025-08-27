@@ -161,7 +161,6 @@ def create_vectorstore(documents):
 
         logger.info("Upsert completed for PGVector.")
 
-
     elif DB_TYPE == "elasticsearch":
         logger.info(f"Using Elasticsearch at {ELASTICSEARCH_URL}, index: {ELASTICSEARCH_INDEX}")
         reset_elasticsearch_index()
