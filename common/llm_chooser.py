@@ -1,6 +1,5 @@
 import logging
-
-from typing import Union
+from typing import Union, Dict, Type, Any
 
 # Import different LLM implementations
 from langchain_ollama import ChatOllama
@@ -10,34 +9,47 @@ from common.config import LLM_MODEL, LLM_PROVIDER
 
 logger = logging.getLogger(__name__)
 
+# Map providers to their classes and default params
+LLM_PROVIDERS: Dict[str, Dict[str, Any]] = {
+    "ollama": {
+        "class": ChatOllama,
+        "params": {"temperature": 0.3, "max_tokens": 512},
+    },
+    "openai": {
+        "class": ChatOpenAI,
+        "params": {"temperature": 0.7},
+    },
+    "huggingface": {
+        "class": ChatHuggingFace,
+        "params": {"temperature": 0.7},
+    },
+}
+
 def get_llm() -> Union[ChatOllama, ChatOpenAI, ChatHuggingFace]:
     """
     Factory function to return an LLM instance based on configuration.
 
     Returns:
-        An instance of an LLM configured based on the LLM_PROVIDER environment variable.
+        An instance of a configured LLM based on the LLM_PROVIDER environment variable.
 
     Raises:
-        ValueError: If an unsupported LLM provider is specified.
+        ValueError: If LLM_MODEL or LLM_PROVIDER is not configured properly.
     """
-    logger.debug(f"Fetching LLM provider from environment: {LLM_PROVIDER}")
-    
     if not LLM_MODEL:
         raise ValueError("LLM_MODEL is not set. Please configure it in the environment or settings.")
-                         
-    if LLM_PROVIDER == "ollama":
-        logger.info(f"Using ChatOllama as the LLM provider with model: {LLM_MODEL}")
-        return ChatOllama(model=LLM_MODEL, temperature=0.3, max_tokens=512)
-    
-    if LLM_PROVIDER == "openai":
-        logger.info(f"Using ChatOpenAI as the LLM provider with model: {LLM_MODEL}")
-        # Optionally pass additional parameters like temperature, model name, etc.
-        return ChatOpenAI(model=LLM_MODEL, temperature=0.7)
-    
-    if LLM_PROVIDER == "huggingface":
-        logger.info(f"Using huggingface as the LLM provider with model: {LLM_MODEL}")
-        # Optionally pass additional parameters like temperature, model name, etc.
-        return ChatHuggingFace(model=LLM_MODEL, temperature=0.7)
-    
-    else:
-        raise ValueError(f"Unsupported LLM provider: {LLM_PROVIDER}")
+
+    provider = LLM_PROVIDER.lower() if LLM_PROVIDER else None
+    logger.debug(f"Fetching LLM provider from environment: {provider}")
+
+    if provider not in LLM_PROVIDERS:
+        raise ValueError(
+            f"Unsupported LLM provider: {provider}. "
+            f"Supported providers are: {', '.join(LLM_PROVIDERS.keys())}"
+        )
+
+    provider_config = LLM_PROVIDERS[provider]
+    llm_class: Type = provider_config["class"]
+    default_params: Dict[str, Any] = provider_config.get("params", {})
+
+    logger.info(f"Using {llm_class.__name__} as the LLM provider with model: {LLM_MODEL}")
+    return llm_class(model=LLM_MODEL, **default_params)
