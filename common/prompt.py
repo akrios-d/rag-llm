@@ -87,17 +87,13 @@ def create_memory():
     return ConversationBufferMemory(input_key="question", memory_key="history")
 
 def create_retriever(vector_db, llm):
-    """Creates a retriever, optionally using MultiQueryRetriever."""
+    """Creates a MultiQueryRetriever."""
 
     if not vector_db:
         raise ValueError("Vector database cannot be None.")
     
-    if USE_MULTIQUERY:
-        logger.info("Using MultiQueryRetriever...")
-        return MultiQueryRetriever.from_llm(vector_db.as_retriever(), llm, prompt=MULTI_QUERY_PROMPT)
-    else:
-        logger.info("Using basic retriever...")
-        return vector_db.as_retriever()
+    logger.info("Using MultiQueryRetriever...")
+    return MultiQueryRetriever.from_llm(vector_db.as_retriever(), llm, prompt=MULTI_QUERY_PROMPT)
 
 def simple_retriever(vector_db, llm):
     if not vector_db:
